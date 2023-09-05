@@ -1,5 +1,5 @@
 {
-  "name": "init",
+  "name": "toolbox",
   "$schema": "node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "./src",
   "projectType": "application",
@@ -10,7 +10,7 @@
       "defaultConfiguration": "production",
       "options": {
         "compiler": "babel",
-        "outputPath": "dist/init",
+        "outputPath": "dist",
         "index": "src/index.html",
         "baseHref": "/",
         "main": "src/main.tsx",
@@ -48,15 +48,15 @@
       "executor": "@nx/webpack:dev-server",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "init:build",
+        "buildTarget": "toolbox:build",
         "hmr": true
       },
       "configurations": {
         "development": {
-          "buildTarget": "init:build:development"
+          "buildTarget": "toolbox:build:development"
         },
         "production": {
-          "buildTarget": "init:build:production",
+          "buildTarget": "toolbox:build:production",
           "hmr": false
         }
       }

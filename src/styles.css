@@ -1,1 +1,30 @@
-/* You can add global styles to this file, and also import other style files */
+:root {
+ /* define some colors */
+ --bg: #222;
+ --fg-normal: #EEE;
+ --fg-highlight:#99ff00;
+ --fg-alert:#f2ff00;
+ --bg-canvas:#333;
+}
+
+
+body {
+  background-color: var(--bg);
+  color:var(--fg-normal);
+  font-family: 'Geologica', sans-serif;
+}
+
+canvas {
+  border:1em solid var(--bg-canvas);
+  border-radius: 1em;
+  margin:.2em;
+  background-color: var(--bg-canvas);
+  image-rendering: -moz-crisp-edges;
+  image-rendering: -webkit-crisp-edges;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  width: 800px;
+  height: 800px;
+  
+}
+
