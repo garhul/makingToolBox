@@ -8,12 +8,24 @@
 }
 
 
+html, body { width:100%; height:100%; } 
+
 body {
   background-color: var(--bg);
   color:var(--fg-normal);
   font-family: 'Geologica', sans-serif;
+  padding:0;
+  margin:0;
+
 }
 
+.floating {
+  position: absolute;
+  border: 1px solid #f2ff00;
+}
+
+
+/* 
 canvas {
   border:1em solid var(--bg-canvas);
   border-radius: 1em;
@@ -23,8 +35,23 @@ canvas {
   image-rendering: -webkit-crisp-edges;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
-  width: 800px;
-  height: 800px;
-  
+  width: 800px; 
+  height: 800px;   
+}*/
+
+canvas { 
+  height: 100vh; 
+  width: 100vw; 
+  display: block;
+  overflow: hidden;
 }
 
+#footer {
+  position:fixed;
+  display:inline-flex;
+  justify-content: space-around;
+  bottom: 0px;
+  width:100%;
+  padding:.2em;
+  border:  1px solid var(--fg-alert);
+}
