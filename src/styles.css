@@ -1,10 +1,18 @@
 :root {
- /* define some colors */
- --bg: #222;
- --fg-normal: #EEE;
- --fg-highlight:#99ff00;
- --fg-alert:#f2ff00;
- --bg-canvas:#333;
+  /* define some colors */
+  --bg: #222;
+  --fg-normal: #EEE;
+  --fg-highlight:#99ff00;
+  --fg-alert:#f2ff00;
+
+  --bg-canvas:#21272f;
+  --dark-grey:#4c4c54;
+
+  --fg-orange:#ff9900;
+  --fg-orange-2:#ff6600;
+  --fg-yellow:#b7e36b;
+  --fg-gray:#BBB;
+
 }
 
 
@@ -16,7 +24,7 @@ body {
   font-family: 'Geologica', sans-serif;
   padding:0;
   margin:0;
-
+  overflow:hidden;
 }
 
 .floating {
@@ -24,34 +32,170 @@ body {
   border: 1px solid #f2ff00;
 }
 
+.controlsTitle {
+  margin-bottom: 1em;
+  border-bottom: 1px solid var(--dark-grey);
+  padding-bottom: 0.5em;
+  display: flex;
+  grid-column-gap: 1em;  
+  font-size: 1.2em;
+  justify-items: start;
+  justify-content: space-between;
+  align-items: center;
+}
 
-/* 
-canvas {
-  border:1em solid var(--bg-canvas);
-  border-radius: 1em;
-  margin:.2em;
-  background-color: var(--bg-canvas);
-  image-rendering: -moz-crisp-edges;
-  image-rendering: -webkit-crisp-edges;
-  image-rendering: pixelated;
-  image-rendering: crisp-edges;
-  width: 800px; 
-  height: 800px;   
-}*/
 
 canvas { 
   height: 100vh; 
   width: 100vw; 
   display: block;
   overflow: hidden;
+  background-color: var(--bg-canvas);
 }
 
-#footer {
-  position:fixed;
-  display:inline-flex;
-  justify-content: space-around;
-  bottom: 0px;
-  width:100%;
-  padding:.2em;
-  border:  1px solid var(--fg-alert);
+#zoomBadge {
+  position:absolute;
+  bottom:1em;
+  left: 1em;
+}
+
+#shapeControls {
+  min-width: 20vw;
+  position:absolute;
+  bottom:1em;
+  right:1em;
+  background-color: rgba(0,0,0,0.1);  
+  padding:1em;
+  border-radius: 1em;
+}
+
+.controlGroup.row {
+  font-size:1em;
+  text-transform: uppercase;  
+  justify-content: space-between;      
+  padding: 0.2em;
+  min-width: 30vw;
+  margin:.2em;
+  border-bottom: 1px solid var(--dark-grey);
+  display: grid;
+  grid-template-columns: 35% 10% 50%;
+}
+
+.controlGroup.row > input[type=number] { 
+ background-color: var(--dark-grey);
+ color: var(--fg-yellow);
+ border:0;
+ padding:.4em;
+ border-radius: .5em; 
+}
+
+.controlGroup.row > input[type=number]:focus { 
+  outline:none;
+  font-weight: bold;
+ }
+
+input[type=range] {
+  width: 100%;
+  margin: 3px 0;
+  background-color: transparent;
+  -webkit-appearance: none;
+}
+
+input[type=range]:focus {
+  outline: none;
+}
+
+input[type=range]::-webkit-slider-runnable-track {
+  background: var(--fg-gray);
+  border: 0;
+  width: 100%;
+  height: 1px;
+  cursor: pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  margin-top: -3px;
+  width: 8px;
+  height: 16px;
+  margin-top: -8px;
+  background: var(--fg-yellow);  
+  border: 0;
+  cursor: pointer;
+  -webkit-appearance: none;
+}
+input[type=range]:focus::-webkit-slider-runnable-track {
+  background: var(--fg-gray);
+}
+input[type=range]::-moz-range-track {
+  background: var(--fg-gray);
+  border: 0;
+  width: 100%;
+  height: 1px;
+  cursor: pointer;
+}
+input[type=range]::-moz-range-thumb {
+  width: 4px;
+  height: 10px;
+  background: var(--fg-yellow);  
+  border: 0;
+  cursor: pointer;
+}
+input[type=range]::-ms-track {
+  background: transparent;
+  border-color: transparent;
+  border-width: 3px 0;
+  color: transparent;
+  width: 100%;
+  height: 1px;
+  cursor: pointer;
+}
+input[type=range]::-ms-fill-lower {
+  background: var(--fg-gray);
+  border: 0;
+}
+input[type=range]::-ms-fill-upper {
+  background: var(--fg-gray);
+  border: 0;
+}
+input[type=range]::-ms-thumb {
+  width: 4px;
+  height: 10px;
+  background: var(--fg-yellow);
+  border: 0px solid rgba(0, 0, 0, 0);
+  border: 0;
+  cursor: pointer;
+  margin-top: 0px;
+  /*Needed to keep the Edge thumb centred*/
+}
+input[type=range]:focus::-ms-fill-lower {
+  background: var(--fg-gray);
+}
+input[type=range]:focus::-ms-fill-upper {
+  background: var(--fg-gray);
+}
+/*TODO: Use one of the selectors from https://stackoverflow.com/a/20541859/7077589 and figure out
+how to remove the virtical space around the range input in IE*/
+@supports (-ms-ime-align:auto) {
+  /* Pre-Chromium Edge only styles, selector taken from hhttps://stackoverflow.com/a/32202953/7077589 */
+  input[type=range] {
+    margin: 0;
+    /*Edge starts the margin from the thumb, not the track as other browsers do*/
+  }
+}
+
+
+.btn {
+  padding:.5em;  
+  background-color:var(--bg); 
+  border:0;
+  border-bottom:1px solid var(--dark-grey);
+  color:var(--fg-gray);
+  cursor:pointer;
+  font-size:.8em;
+  text-transform: uppercase;
+  margin:.5em;
+}
+
+.btn-toggled {
+  color:var(--fg-highlight);
+  border-bottom:1px solid var(--fg-highlight);
 }

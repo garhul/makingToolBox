@@ -1,61 +1,84 @@
 import { useState } from "react";
-import { Badge, Container, Row, Form } from "react-bootstrap";
-import { ShapeParameter } from "src/types";
-import { BsArrowUpSquare } from 'react-icons/bs/';
-import { shapeListOption } from "src/shapes";
+import { Badge, Container, Row, Form, OverlayTrigger, Tooltip, Button, ButtonGroup } from "react-bootstrap";
+import { ShapeParameter, ShapeParameterValue } from "src/types";
+import { BsArrowDownSquare, BsArrowUpSquare } from 'react-icons/bs/';
+import { shapeKeys, shapeListOption } from "src/shapes";
+import { BsQuestionCircle } from 'react-icons/bs';
 
-export default function Controls() {
+type shapeControlProps = {
+  paramKey: string;
+  param: ShapeParameterValue;
+  onChange: (val: number) => void;
+};
+
+function ShapeControl({ paramKey, param, onChange }: shapeControlProps) {
   return (
-    <Container>
-      <Row>
+    <Row className="controlGroup" key={paramKey}>
+      <label title={param.tooltip || param.name} htmlFor={paramKey}>
+        <OverlayTrigger
+          delay={150}
+          overlay={<Tooltip>{param.tooltip || param.name}</Tooltip>}
+          placement="left">
+          <><Badge style={{ cursor: 'help', marginRight: '.5em' }}><BsQuestionCircle /></Badge>{param.name}</>
+        </OverlayTrigger>
+      </label>
 
-      </Row>
-    </Container>
+      <input size={5} type="number" min={param.min} max={param.max} value={param.value} step={param.step} onChange={(ev) => onChange(parseFloat(ev.currentTarget.value))} />
+      <input id={paramKey} min={param.min} max={param.max} value={param.value} step={param.step} type="range" onChange={(ev) => onChange(parseFloat(ev.currentTarget.value))} />
+    </Row >
   )
 }
 
 export type shapeControlsProps = {
-  onChange: (key: string, value: number) => void;
-  controlsList: ShapeParameter[];
+  onChange: (key: shapeKeys, value: number) => void;
+  controlsList: ShapeParameter;
+  onShapeChange: (key: shapeKeys) => void;
+  opts: shapeListOption[];
 }
 
-export function ShapeControls({ controlsList, onChange }: shapeControlsProps) {
+export function ShapeControls({ controlsList, onChange, onShapeChange, opts }: shapeControlsProps) {
   const [collapsed, setCollapsed] = useState(false);
 
   const toggleCollapsed = () => {
     setCollapsed(!collapsed);
   }
 
-  const Controls = controlsList.map(c => (
-    <Row className="controlGroup" key={c.key}>
-      <label title={c.tooltip || c.name} htmlFor={c.key}>{c.name} - [{c.value}]</label>
-      <input id={c.key} step={c.step} type="range" onChange={(ev) => onChange(c.key, parseFloat(ev.currentTarget.value))} />
-    </Row>
-  ));
+  const Controls = Object.keys(controlsList).map(key => (<ShapeControl key={key} paramKey={key} param={controlsList[key]} onChange={(v) => onChange(key as shapeKeys, v)} />));
 
   return (
     <Container>
-      <Row>
-        <Badge>
-          Shape properties <BsArrowUpSquare onClick={toggleCollapsed} />
-        </Badge>
+      <Row className="controlsTitle">
+        Shape properties
+        <ShapeSelector onChange={onShapeChange} options={opts} />
+        {!collapsed ? <BsArrowDownSquare style={{ cursor: 'pointer' }} onClick={toggleCollapsed} /> : <BsArrowUpSquare style={{ cursor: 'pointer' }} onClick={toggleCollapsed} />}
       </Row>
       {!collapsed && Controls}
     </Container>
   )
 }
 
-
-export type shapeSelectorProps = {
-  onChange: (key: string) => void;
+type shapeSelectorProps = {
+  onChange: (key: shapeKeys) => void;
   options: shapeListOption[];
 }
 
-export function ShapeSelector({ onChange, options }: shapeSelectorProps) {
-  const Opts = options.map((v, i) => <option value={v.key}>{v.name}</option>);
+function ShapeSelector({ onChange, options }: shapeSelectorProps) {
+  const [selected, setSelected] = useState(0);
+  // const Opts = options.map((v, i) => <option key={v.key} value={v.key}>{v.name}</option>);
+  const btns = options.map((v, i) => (
+    <Button
+      variant={i === selected ? 'toggled' : undefined}
+      onClick={(ev) => { setSelected(i); onChange(ev.currentTarget.value as shapeKeys) }}
+      key={v.key}
+      value={v.key}
+    >{v.name}</Button >));
+
+
   return (
-    <Form.Select size="sm" onChange={(ev) => onChange(ev.currentTarget.value)}>
-      {Opts}
-    </Form.Select>
+    <ButtonGroup>{btns}</ButtonGroup>
+
+    // <Form.Select size="sm" onChange={(ev) => onChange(ev.currentTarget.value as shapeKeys)}>
+    //   {Opts}
+    // </Form.Select>
   )
 }

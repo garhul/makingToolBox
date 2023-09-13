@@ -9,8 +9,24 @@ export type gridProperties = {
   color: string;
 }
 
-function drawScale({ ctx }: Partial<gridProperties>) {
-  console.log(ctx);
+function drawScale({ ctx, dimensions, zoom }: gridProperties) {
+  ctx.beginPath();
+  ctx.font = "16px Geologica, sans-serif";
+  ctx.strokeStyle = "#FFF";
+  ctx.fillStyle = "#DDD";
+  ctx.fillText("25 mm", 20, dimensions.height - 50);
+
+  ctx.moveTo(20.5, dimensions.height - 80.5);
+  ctx.lineTo(20.5 + (zoom * 25), dimensions.height - 80.5);
+
+  ctx.moveTo(20.5, dimensions.height - 70);
+  ctx.lineTo(20.5, dimensions.height - 90);
+
+  ctx.moveTo(20.5 + (zoom * 25), dimensions.height - 70);
+  ctx.lineTo(20.5 + (zoom * 25), dimensions.height - 90);
+
+  ctx.closePath();
+  ctx.stroke();
 }
 
 function drawGrid({ ctx, zoom, size, dimensions, origin, color }: gridProperties) {
@@ -18,21 +34,24 @@ function drawGrid({ ctx, zoom, size, dimensions, origin, color }: gridProperties
   ctx.strokeStyle = color;
   ctx.beginPath();
 
-  const gridStart = dimensions.width - origin.x;
-
-  const count_x = dimensions.width / size;
-  //grid must start from origin and expand left and right,top and bottom
-
-  //horizontal grid
-  console.log(gridStart);
-  for (let x = gridStart; x <= dimensions.height; x += size) {
-    console.log(x);
-    ctx.strokeRect(0, x, dimensions.width, 0);
+  //vertical grid lines
+  for (let x = origin.x; x <= dimensions.width; x += size) {
+    ctx.strokeRect(x, 0, 0.5, dimensions.height);
   }
 
-  // for (let y = size; y <= canvasWidth; y += size) {
-  //   ctx.strokeRect(y, 0, 0, canvasWidth);
-  // }
+  for (let x = origin.x; x >= 0; x -= size) {
+    console.log({ x });
+    ctx.strokeRect(x, 0, 0.5, dimensions.height);
+  }
+
+  // horizontal grid lines
+  for (let y = origin.y; y <= dimensions.height; y += size) {
+    ctx.strokeRect(0, y, dimensions.width, 0.5);
+  }
+
+  for (let y = origin.y; y >= 0; y -= size) {
+    ctx.strokeRect(0, y, dimensions.width, 0.5);
+  }
 
   ctx.closePath();
   ctx.stroke();
@@ -48,8 +67,8 @@ function drawAxes({ ctx, dimensions, origin }: drawAxesParams) {
   // Draw X axis
   ctx.beginPath();
   ctx.font = "1.5em Geologica, sans-serif";
-  ctx.strokeStyle = "#EE0000";
-  ctx.fillStyle = "#FF0000";
+  ctx.strokeStyle = "#AA0000";
+  ctx.fillStyle = "#AA0000";
   ctx.fillText("X", 4, origin.y - 8);
 
   ctx.moveTo(0, origin.y);
@@ -58,8 +77,8 @@ function drawAxes({ ctx, dimensions, origin }: drawAxesParams) {
   ctx.stroke();
 
   ctx.beginPath();
-  ctx.strokeStyle = "#00EE00";
-  ctx.fillStyle = "#00FF00";
+  ctx.strokeStyle = "#00AA00";
+  ctx.fillStyle = "#00AA00";
   ctx.fillText("Y", origin.x + 4, dimensions.height - 8);
 
   ctx.moveTo(origin.x, dimensions.height);
@@ -73,4 +92,5 @@ export default function drawBackground(properties: gridProperties, axes = true, 
   // draw axes
   if (drawGrid) drawGrid(properties);
   if (axes) drawAxes(properties);
+  drawScale(properties);
 }

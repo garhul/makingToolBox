@@ -1,3 +1,4 @@
+import { Shape, ShapeParameter } from "src/types";
 import Cycloid from "./HipoCycloid";
 
 enum ShapeKeys {
@@ -22,11 +23,11 @@ export function getShapeOptions(): shapeListOption[] {
   }];
 }
 
-export function getShape(key: shapeKeys) {
+export function getShape(key: shapeKeys, params: ShapeParameter = {}, color = '#FFBB00'): Shape {
   switch (key) {
     case 'Cycloid':
-      return new Cycloid();
+      return new Cycloid(params, color);
     case 'Gt2Pulley':
-      return null;
+      return new Cycloid(params, '#0099ff');
   }
 }
