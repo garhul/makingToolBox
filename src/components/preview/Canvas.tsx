@@ -1,4 +1,4 @@
-import { useRef, WheelEvent } from "react";
+import { useEffect, useRef, useState, WheelEvent } from "react";
 import { Shape } from "src/types";
 import drawBackground from "./grid";
 
@@ -10,8 +10,11 @@ export type canvasViewProperties = {
   onZoomChange: (zoom: number) => void;
 };
 
+
+
+
 export default function Canvas({ shape, grid, axes, zoom, onZoomChange }: canvasViewProperties) {
-  // const [origin, setOrigin] = useState<point2D>({ x: 0, y: 0 });
+  const [, reRender] = useState({});
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const zoomRatio = 4.2; // zoom Ratio is an attempt to adjust everything to look 1:1 without properly attempting to read DPI
@@ -33,7 +36,8 @@ export default function Canvas({ shape, grid, axes, zoom, onZoomChange }: canvas
 
     drawBackground({
       ctx: context,
-      zoom: zoom * zoomRatio,
+      zoomRatio,
+      zoom: zoom,
       size: zoom * zoomRatio * 10,
       dimensions: { width: canvas.width, height: canvas.height },
       origin: origin,
@@ -44,8 +48,18 @@ export default function Canvas({ shape, grid, axes, zoom, onZoomChange }: canvas
     shape?.render(context, zoom * zoomRatio, origin);
   }
 
+  useEffect(() => {
+    const update = () => reRender({});
+    window.addEventListener("resize", update);
+
+    return () => {
+      window.removeEventListener('resize', update);
+    }
+  }, []);
+
+
   const handleScroll = (ev: WheelEvent<HTMLCanvasElement>) => {
-    const maxZoomLevel = 10;
+    const maxZoomLevel = 40;
     const minZoomLevel = 0.25;
     const z = (ev.deltaY < 0) ? zoom + .25 : zoom - .25;
     if (z <= maxZoomLevel && z >= minZoomLevel) {

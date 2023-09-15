@@ -3,27 +3,32 @@ import { dimensions2d, point2D } from "src/types";
 export type gridProperties = {
   ctx: CanvasRenderingContext2D;
   zoom: number;
+  zoomRatio: number;
   size: number;
   dimensions: dimensions2d;
   origin: point2D;
   color: string;
 }
 
-function drawScale({ ctx, dimensions, zoom }: gridProperties) {
+function drawScale({ ctx, dimensions, zoom, zoomRatio }: gridProperties) {
   ctx.beginPath();
   ctx.font = "16px Geologica, sans-serif";
   ctx.strokeStyle = "#FFF";
   ctx.fillStyle = "#DDD";
+  const scaleSize = 25 * zoom * zoomRatio;
+
+  ctx.fillText(`Zoom: ${zoom}`, 20, dimensions.height - 100);
+
   ctx.fillText("25 mm", 20, dimensions.height - 50);
 
   ctx.moveTo(20.5, dimensions.height - 80.5);
-  ctx.lineTo(20.5 + (zoom * 25), dimensions.height - 80.5);
+  ctx.lineTo(20.5 + scaleSize, dimensions.height - 80.5);
 
   ctx.moveTo(20.5, dimensions.height - 70);
   ctx.lineTo(20.5, dimensions.height - 90);
 
-  ctx.moveTo(20.5 + (zoom * 25), dimensions.height - 70);
-  ctx.lineTo(20.5 + (zoom * 25), dimensions.height - 90);
+  ctx.moveTo(20.5 + scaleSize, dimensions.height - 70);
+  ctx.lineTo(20.5 + scaleSize, dimensions.height - 90);
 
   ctx.closePath();
   ctx.stroke();
@@ -40,7 +45,6 @@ function drawGrid({ ctx, zoom, size, dimensions, origin, color }: gridProperties
   }
 
   for (let x = origin.x; x >= 0; x -= size) {
-    console.log({ x });
     ctx.strokeRect(x, 0, 0.5, dimensions.height);
   }
 
@@ -86,7 +90,6 @@ function drawAxes({ ctx, dimensions, origin }: drawAxesParams) {
   ctx.closePath();
   ctx.stroke();
 }
-
 
 export default function drawBackground(properties: gridProperties, axes = true, grid = true) {
   // draw axes

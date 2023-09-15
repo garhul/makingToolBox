@@ -1,4 +1,5 @@
 import { Shape, ShapeParameter } from "src/types";
+import GTPulley from "./GT2Pulley";
 import Cycloid from "./HipoCycloid";
 
 enum ShapeKeys {
@@ -28,6 +29,6 @@ export function getShape(key: shapeKeys, params: ShapeParameter = {}, color = '#
     case 'Cycloid':
       return new Cycloid(params, color);
     case 'Gt2Pulley':
-      return new Cycloid(params, '#0099ff');
+      return new GTPulley(params, '#f2ff00');
   }
 }

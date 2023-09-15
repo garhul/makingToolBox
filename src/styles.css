@@ -1,5 +1,7 @@
 :root {
-  /* define some colors */
+
+    /* TODO:: stream line these */
+    /* define colors */
   --bg: #222;
   --fg-normal: #EEE;
   --fg-highlight:#99ff00;
@@ -7,6 +9,8 @@
 
   --bg-canvas:#21272f;
   --dark-grey:#4c4c54;
+
+  --bg-controls: rgba(0,0,0,.25);
 
   --fg-orange:#ff9900;
   --fg-orange-2:#ff6600;
@@ -53,18 +57,14 @@ canvas {
   background-color: var(--bg-canvas);
 }
 
-#zoomBadge {
-  position:absolute;
-  bottom:1em;
-  left: 1em;
-}
+
 
 #shapeControls {
   min-width: 20vw;
   position:absolute;
-  bottom:1em;
+  bottom:4em;
   right:1em;
-  background-color: rgba(0,0,0,0.1);  
+  background-color: var(--bg-controls);
   padding:1em;
   border-radius: 1em;
 }
@@ -182,7 +182,6 @@ how to remove the virtical space around the range input in IE*/
   }
 }
 
-
 .btn {
   padding:.5em;  
   background-color:var(--bg); 
@@ -193,9 +192,73 @@ how to remove the virtical space around the range input in IE*/
   font-size:.8em;
   text-transform: uppercase;
   margin:.5em;
+  font-family: inherit;
 }
 
-.btn-toggled {
+.btn:hover {
+  filter: brightness(120%);
+}
+
+.btn-toggled , .btn-toggled:hover {
+  font-family: inherit;
   color:var(--fg-highlight);
   border-bottom:1px solid var(--fg-highlight);
+  cursor:pointer;
+  filter: brightness(100%);
+}
+
+
+#downloadBadge {
+  position:fixed;
+  bottom:0em;
+  right:1em; 
+}
+
+#downloadBadge > .btn {
+  font-size: 1em;
+  line-height: 1em;
+  border-radius: .5em;
+  border:1px solid var(--bg);
+  background-color: var(--bg-controls);
+  color:lightgray; 
+}
+
+#downloadBadge > .btn:active{
+  font-size: 1em;
+  line-height: 1em;
+  border:1px solid var(--fg-highlight);  
+  color:var(--fg-highlight); 
+  filter: brightness(100%);
+}
+
+#zoomBadge {
+  position:absolute;
+  bottom:1em;
+  left: 1em;
+}
+
+#topControls {
+  position:absolute;
+  top:1em;
+  right:1em;
+}
+
+#ghBadge {
+  display: grid;
+  font-size: 2em;
+  cursor: pointer;
+  align-content: space-evenly;
+  justify-items: center;
+  gap:.2em;
+  border-radius:.5em;
+  /* margin:1em; */
+  background-color: var(--bg-controls);
+}
+
+#ghBadge > span {
+  font-size:.4em;
+}
+
+#ghBadge:hover{
+  filter: brightness(120%); 
 }

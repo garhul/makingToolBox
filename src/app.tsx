@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { Badge, Container } from "react-bootstrap";
 import { ShapeControls } from "./components/Controls";
+import DownloadBadge from "./components/DownloadBadge";
 import Canvas from "./components/preview/Canvas";
+import TopLeftControls from "./components/TopLeftControls";
 import { getShape, getShapeOptions, shapeKeys } from "./shapes";
 import { Shape, ShapeParameter } from "./types";
 // import 'bootstrap/dist/css/bootstrap.min.css';
@@ -18,7 +20,7 @@ function ZoomBadge({ zoom }: { zoom: number }) {
 }
 
 function ShapeControlBox({ onChange }: shapeControlBoxProps) {
-  const [shapeKey, setShapeKey] = useState<shapeKeys>('Cycloid');
+  const [shapeKey, setShapeKey] = useState<shapeKeys>('Gt2Pulley');
   const [shapeParams, setShapeParams] = useState<ShapeParameter>({});
   const [shapeObj, setShapeObj] = useState(getShape(shapeKey));
 
@@ -67,20 +69,15 @@ function ShapeControlBox({ onChange }: shapeControlBoxProps) {
 
 export default function App() {
   const [shape, setShape] = useState<Shape | null>(null);
-  const [zoom, setZoom] = useState(1);
-
-  const shapeChangeHandler = (s: Shape) => {
-    console.log(s);
-    setShape(s);
-  }
+  const [zoom, setZoom] = useState(40);
 
   return (
     <Container style={{ overflow: 'hidden' }}>
+      <TopLeftControls />
       <Canvas shape={shape} grid={true} axes={true} onZoomChange={(zoom) => setZoom(zoom)} zoom={zoom} />
-      <Container id="footer">
-        <ZoomBadge zoom={zoom} />
-        <ShapeControlBox onChange={shapeChangeHandler} />
-      </Container>
+      {/* <ZoomBadge zoom={zoom} /> */}
+      <DownloadBadge shape={shape} />
+      <ShapeControlBox onChange={setShape} />
     </Container>
   );
 }

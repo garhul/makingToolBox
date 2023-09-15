@@ -3,6 +3,8 @@ export type point2D = {
   y: number;
 };
 
+export type vector = [point2D, point2D];
+
 export type dimensions2d = {
   width: number;
   height: number;
