@@ -1,15 +1,15 @@
 
-import { point2D, Shape, ShapeParameter, ShapeParameterValue } from "src/types";
-import { getArcPath, getTriangleFromSidesAndVertex, getTriangleVertices, polarMove } from "./utils";
-
+import { point2D, path2D } from "src/types";
+import { getArch, getTriangleFromSidesAndVertex, getTriangleVertices, polarMove, vectorAngle } from "./utils";
+import Shape, { ShapeParameter } from './Shape';
 
 const pulleyProfiles = {
   gt2: {
-    grooveDepth: 0.76, //0.75
-    pitchFactor: 0.41, //0.4
-    pld: 0.254, // 0.254
+    grooveDepth: 0.75, //0.75
+    pitchFactor: 0.40, //0.4
+    pitchLineDepth: 0.254, // 0.254
     toothRadius: 0.555, // 0.555
-    toothInnerDiameter: 1, //1.0
+    toothInnerRadius: 1, //1.0
     filletRadius: 0.15 //0.15
   },
   // '3': {
@@ -31,33 +31,33 @@ const pulleyProfiles = {
 type pulleyProfile = {
   grooveDepth: number;  //0.75
   pitchFactor: number;
-  pld: number;
+  pitchLineDepth: number;
   toothRadius: number;
-  toothInnerDiameter: number;
+  toothInnerRadius: number;
   filletRadius: number;
 
 }
 
-export default class GTPulley implements Shape {
-  private _params: ShapeParameter;
-  private _color: string;
+export default class GTPulley extends Shape {
   private _pulleyProfile: pulleyProfile;
 
   private _origin = { x: 0, y: 0 };
-  private _pitchDiameter = 0;
-  private _toothAngle = 0;
+  private _pitchRadius = 0;
+
+  /* The distance between tooth groove and pulley inner fillet centre  */
+  private _toothInnerFilletCenterDist = 0;
+  /* angle for finding innerfilletcentral point */
+  private _toothInnerFilletCenterAngle = 0;
 
   /* outer diameter of the pulley at the farthest point (Addendum) */
-  private _outerDiameter = 0;
+  private _outerRadius = 0;
   /* outer diameter of the pulley at the closest point (Dedendum) */
-  private _innerDiameter = 0;
+  private _innerRadius = 0;
 
 
   constructor(params: ShapeParameter, color = '#55DD99') {
-    this._color = color;
-    this._pulleyProfile = pulleyProfiles.gt2;
     // set default parameters
-    this._params = {
+    super({
       ...{
         'definition': {
           name: 'Drawing definition',
@@ -100,167 +100,134 @@ export default class GTPulley implements Shape {
         //   step: .1
         // }
       }, ...params
-    };
-  }
+    });
 
-  getParametersList() {
-    return this._params;
-  }
-
-  private getParam(key: string) {
-    if (!(key in this._params)) throw new Error(`Requested param [${key}] not found `);
-
-    return this._params[key];
+    this._pulleyProfile = pulleyProfiles.gt2;
   }
 
   /**
-   * looks like it returns the origin point of the arc for the dedendum/addendum fillets (r=0.15)
-   * along with its edges
+   * get the shoulder central point and intersection points
    */
-  private _getShoulderFilletPoint(origin: point2D, angle: number, direction: 'cw' | 'ccw'): { origin: point2D, edges: { r: point2D, l: point2D } } {
-    const angles = getTriangleFromSidesAndVertex(
-      [this._pulleyProfile.toothInnerDiameter + this._pulleyProfile.filletRadius,
-      this._pulleyProfile.filletRadius],
-      90
-    );
+  private _getShoulderFilletPoint(origin: point2D, angle: number, direction: 'ccw' | 'cw'): { origin: point2D, edges: { top: point2D, bottom: point2D } } {
 
-    const angleMargin = angles[0]; //cb
+    const displacementDistance = this._pulleyProfile.toothInnerRadius + this._pulleyProfile.filletRadius;
+    const anglePosition = getTriangleFromSidesAndVertex([displacementDistance, this._pulleyProfile.filletRadius], 90)[2];
 
-    const a = angle + ((direction === 'cw') ? -angleMargin : angleMargin);
-    const pointOrig = polarMove(origin, a - 180, this._pulleyProfile.toothInnerDiameter + this._pulleyProfile.filletRadius)
+    const displacementAngle = angle + ((direction === 'ccw') ? anglePosition : -anglePosition);
+    const center = polarMove(origin, displacementAngle - 180, displacementDistance);
+    const intersectionWithInsideFillet = polarMove(origin, displacementAngle - 180, this._pulleyProfile.toothInnerRadius);
+    const intersectionWithOuterEdge = polarMove(center, angle, this._pulleyProfile.filletRadius);
 
     return {
-      origin: pointOrig,
+      origin: center,
       edges: {
-        r: polarMove(origin, a - 180, this._pulleyProfile.toothInnerDiameter),
-        l: polarMove(pointOrig, angle, this._pulleyProfile.filletRadius),
+        top: intersectionWithOuterEdge,
+        bottom: intersectionWithInsideFillet,
       }
-    }
+    };
   }
 
   /** 
    *  this returns the position of the excentric 1mm diameter circle that's moved 0.4 mm from centre of tooth
+   *  along with its intersection point with the bottom-most curve
    * 
   */
-  private _getInternalFilletPoint(origin: point2D, angle: number, direction: 'cw' | 'ccw'): { origin: point2D, edges: { r: point2D, l: point2D } } {
-    const hDist = this._outerDiameter - (this._innerDiameter + this._pulleyProfile.toothRadius);
+  private _getInternalFilletPoints(grooveCenter: point2D, angle: number): {
+    ccw: { origin: point2D, intersection: point2D }, cw: { origin: point2D, intersection: point2D }
+  } {
 
-    const distance = Math.sqrt(Math.pow(hDist, 2) + Math.pow(this._pulleyProfile.pitchFactor, 2));
-    const angles = getTriangleVertices([hDist, distance, this._pulleyProfile.pitchFactor]);
-
-    const angleMargin = angles[2] //ba;    
-    const a = angle + ((direction === 'cw') ? -angleMargin : angleMargin);
-
-    console.log({ hDist, a, angleMargin });
+    const adjustedAngleCCW = angle + this._toothInnerFilletCenterAngle;
+    const adjustedAngleCW = angle - this._toothInnerFilletCenterAngle;
 
     return {
-      origin: polarMove(origin, a, distance),
-      edges: {
-        r: polarMove(origin, a - 180, this._pulleyProfile.toothRadius),
-        l: polarMove(origin, a - 180, this._pulleyProfile.toothRadius),
+      ccw: {
+        origin: polarMove(grooveCenter, adjustedAngleCCW, this._toothInnerFilletCenterDist),
+        intersection: polarMove(grooveCenter, adjustedAngleCCW - 180, this._pulleyProfile.toothRadius)
+      },
+      cw: {
+        origin: polarMove(grooveCenter, adjustedAngleCW, this._toothInnerFilletCenterDist),
+        intersection: polarMove(grooveCenter, adjustedAngleCW - 180, this._pulleyProfile.toothRadius)
       }
     }
+
   }
 
   private getToothPath(origin: point2D, angle: number) {
     const path: point2D[] = [];
 
-    const startPoint = polarMove(origin, angle, this._innerDiameter / 2); //point where to begin to draw the path from
-    const toothCenter = polarMove(origin, angle, this._innerDiameter / 2 + this._pulleyProfile.toothRadius / 2);
+    //center from where to draw the 0.555 mm radius curve
+    const grooveCenter = polarMove(origin, angle, (this._innerRadius) + this._pulleyProfile.toothRadius);
+    const intFilletPoints = this._getInternalFilletPoints(grooveCenter, angle);
 
-    const internalLeftFillet = this._getInternalFilletPoint(toothCenter, angle, 'cw');
-    const internalRightFillet = this._getInternalFilletPoint(toothCenter, angle, 'ccw');
+    const ccwShoulder = this._getShoulderFilletPoint(intFilletPoints.ccw.origin, angle, 'ccw');
+    const cwShoulder = this._getShoulderFilletPoint(intFilletPoints.cw.origin, angle, 'cw');
 
-    const leftShoulderFillet = this._getShoulderFilletPoint(internalLeftFillet.origin, angle, 'cw');
-    const rightShoulderFillet = this._getShoulderFilletPoint(internalRightFillet.origin, angle, 'ccw');
+    console.log({
+      origin,
+      angle,
+      intFilletPoints,
+      ccwShoulder,
+      cwShoulder
+    });
 
-    /*      
-      shapesForExport.push(addArc(leftOutsideRoundPoint.edgeSharedPoint, leftOutsideRoundPoint.sharedPoint, outsideRoundRadius + config.baseConfig.toolOffset));
-      shapesForExport.push(addArc(leftOutsideRoundPoint.sharedPoint, leftInsideRoundPoint.sharedPoint, (insideRoundRadius - config.baseConfig.toolOffset) * -1));
-      shapesForExport.push(addArc(leftInsideRoundPoint.sharedPoint, startPoint, (roundRadius - config.baseConfig.toolOffset) * -1));
-      shapesForExport.push(addArc(startPoint, rightInsideRoundPoint.sharedPoint, (roundRadius - config.baseConfig.toolOffset) * -1));
-      shapesForExport.push(addArc(rightInsideRoundPoint.sharedPoint, rightOutsideRoundPoint.sharedPoint, (insideRoundRadius - config.baseConfig.toolOffset) * -1));
-      shapesForExport.push(addArc(rightOutsideRoundPoint.sharedPoint, rightOutsideRoundPoint.edgeSharedPoint, outsideRoundRadius + config.baseConfig.toolOffset));
-      shapesForExport.push(addArc(rightOutsideRoundPoint.edgeSharedPoint, nextteeth.start, (config.outsideRadius + config.baseConfig.toolOffset)));
-        }
-    */
 
-    //get first path which correspondes to left side (CCW direction) of 0.15 mm shoulder fillet 
-    path.push(...getArcPath(leftShoulderFillet.edges.l, leftShoulderFillet.edges.r, this._pulleyProfile.filletRadius));
+    path.push(...getArch(ccwShoulder.origin, this._pulleyProfile.filletRadius,
+      vectorAngle([ccwShoulder.origin, ccwShoulder.edges.top]),
+      vectorAngle([ccwShoulder.origin, ccwShoulder.edges.bottom])));
 
-    //get path of internal fillet for left side, radius is 1mm, displacement from center is 0.4 mm
-    path.push(...getArcPath(leftShoulderFillet.edges.r, internalLeftFillet.edges.r, this._pulleyProfile.toothInnerDiameter));
+    path.push(...getArch(intFilletPoints.ccw.origin, this._pulleyProfile.toothInnerRadius,
+      vectorAngle([intFilletPoints.ccw.origin, ccwShoulder.edges.bottom]),
+      vectorAngle([intFilletPoints.ccw.origin, intFilletPoints.ccw.intersection]),));
 
-    /* tooth base r = 0.555*/
-    // path.push(...getArcPath(internalRightFillet.edges.r, internalLeftFillet.edges.r, this._pulleyProfile.toothRadius));
-    // path.push(...getArcPath(startPoint, internalRightFillet.edges[0], this._pulleyProfile.toothRadius));
+    // path.push(...getArch(grooveCenter, this._pulleyProfile.toothRadius,
+    //   vectorAngle([grooveCenter, intFilletPoints.ccw.intersection]),
+    //   vectorAngle([grooveCenter, intFilletPoints.cw.intersection])));
 
-    /* internal fillet for right side */
-    path.push(...getArcPath(internalRightFillet.edges.l, rightShoulderFillet.edges.r, this._pulleyProfile.toothInnerDiameter));
+    path.push(...getArch(intFilletPoints.cw.origin, this._pulleyProfile.toothInnerRadius,
+      vectorAngle([intFilletPoints.cw.origin, intFilletPoints.cw.intersection]),
+      vectorAngle([intFilletPoints.cw.origin, cwShoulder.edges.bottom])));
 
-    /* right shoulder fillet */
-    // path.push(...getArcPath(rightShoulderFillet.edges.l, rightShoulderFillet.edges.r, this._pulleyProfile.filletRadius));
-
-    // path.concat(getArcPath(rightShoulderFillet.edges[1], nextteeth.start, this._outerDiameter)); // join this tooth with the next (may not be needed)
+    path.push(...getArch(cwShoulder.origin, this._pulleyProfile.filletRadius,
+      vectorAngle([cwShoulder.origin, cwShoulder.edges.bottom]),
+      vectorAngle([cwShoulder.origin, cwShoulder.edges.top])));
 
     return path;
-
   }
 
-  getPoints(): point2D[] {
+  getPaths(): path2D[] {
     const points: point2D[] = [];
-    // const origin: point2D = { x: 0, y: 0 };
-
-    this._toothAngle = (360 / this.getParameterValue('toothCount').value);
-    this._pitchDiameter = (2 * this.getParameterValue('toothCount').value) / Math.PI;
-    this._outerDiameter = this._pitchDiameter - this._pulleyProfile.pld; // The outside diameter of the pulley at the addendum 
-    this._innerDiameter = this._outerDiameter - this._pulleyProfile.grooveDepth * 2; // the inner diameter of the pulley at the dedendum height
+    const paths: path2D[] = [];
 
 
-    points.push(...this.getToothPath(this._origin, -90));
+    this._pitchRadius = ((2 * this.getParameterValue('toothCount').value) / Math.PI) / 2;
 
-    // points.push(...this.getToothPath(this._origin, this._toothAngle));
+    this._outerRadius = this._pitchRadius - this._pulleyProfile.pitchLineDepth; // The outside diameter of the pulley at the addendum 
+    this._innerRadius = this._outerRadius - this._pulleyProfile.grooveDepth; // the inner diameter of the pulley at the dedendum height
 
-    // for (let ta = 0; ta <= 360; ta += this._toothAngle) {
-    //   points.push(...this.getToothPath(this._origin, ta));
-    // }
+
+    const hDist = (this._outerRadius - (this._pulleyProfile.toothRadius + this._innerRadius));
+    const hypo = this._toothInnerFilletCenterDist = Math.sqrt(Math.pow(hDist, 2) + Math.pow(this._pulleyProfile.pitchFactor, 2));
+    this._toothInnerFilletCenterDist = hypo;
+    this._toothInnerFilletCenterAngle = getTriangleVertices([hDist, hypo, this._pulleyProfile.pitchFactor])[1];
+
+    // points.push(...this.getToothPath(this._origin, 0));
+    // points.push(...this.getToothPath(this._origin, 90));
+
+    // points.push(...this.getToothPath(this._origin, 0));
+    // points.push(...this.getToothPath(this._origin, 180));
+
+    const toothAngle = (360 / this.getParameterValue('toothCount').value);
+    for (let ta = toothAngle; ta <= 360; ta += toothAngle) {
+      points.push(...this.getToothPath(this._origin, ta));
+    }
+
+    paths.push({
+      strokeColor: '#00ffff',
+      fillColor: '#00ffff',
+      points
+    });
 
     // console.log({ points });
-    return points; // all the points conforming the pulley
-  }
-
-  setParameterValue(key: string, value: number): ShapeParameterValue {
-    if (!(key in this._params))
-      throw new Error(`Error setting value for parameter ${key}, parameter not found`);
-
-    const param = this._params[key];
-
-    if ((param.min <= value) && (value <= param.max)) {
-      param.value = value;
-      return param;
-    }
-
-    throw new Error(`Error setting value for parameter ${key}, parameter value (${value}) out of range (${param.min}:${param.max})`);
-  }
-
-  getParameterValue(key: string): ShapeParameterValue {
-    if (!(key in this._params))
-      throw new Error(`Error setting value for parameter ${key}, parameter not found`);
-    return this._params[key];
-  }
-
-  render(ctx: CanvasRenderingContext2D, zoom: number, origin: point2D): void {
-    ctx.strokeStyle = this._color;
-    const points = this.getPoints();
-    ctx.moveTo(points[0].x, points[0].y);
-    ctx.beginPath(); // Start a new path    
-
-    for (const point of points) {
-      ctx.lineTo((point.x * zoom + origin.x), (point.y * zoom + origin.y));
-      ctx.moveTo((point.x * zoom + origin.x), (point.y * zoom + origin.y));
-    }
-
-    ctx.closePath(); // Line to bottom-left corner
-    ctx.stroke();
+    return paths; // all the points conforming the pulley
   }
 }

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, WheelEvent } from "react";
-import { Shape } from "src/types";
+import Shape from "../../shapes/Shape";
 import drawBackground from "./grid";
 
 export type canvasViewProperties = {

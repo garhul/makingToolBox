@@ -1,9 +1,7 @@
 import { Button, Container } from "react-bootstrap";
 import { BsDownload } from "react-icons/bs";
-import { Shape } from "src/types"
+import Shape from "../shapes/Shape"
 import Drawing from 'dxf-writer';
-
-
 
 type downloadBadgeProps = {
   shape: Shape | null;
@@ -19,15 +17,15 @@ export default function DownloadBadge({ shape }: downloadBadgeProps) {
 
 function downloadAsDXF(shape: Shape) {
   const d = new Drawing();
-  const points = shape.getPoints();
-  const fname = "Test.dxf";
-
   d.setUnits('Millimeters');
-  d.addLayer('part', Drawing.ACI.GREEN, 'CONTINUOUS');
-  d.setActiveLayer('part');
+  const fname = "drawing.dxf";
 
-  d.drawPolyline(points.map(p => [p.x, p.y]), true);
-  console.log(d.toDxfString());
+  const paths = shape.getPaths();
+  paths.forEach((path, i) => {
+    d.addLayer(`layer_${i}`, Drawing.ACI.GREEN, 'CONTINUOUS');
+    d.setActiveLayer(`part`);
+    d.drawPolyline(path.points.map(p => [p.x, p.y]), true);
+  });
 
   const element = document.createElement('a');
   element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(d.toDxfString()));

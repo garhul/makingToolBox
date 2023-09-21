@@ -61,6 +61,67 @@ export function getTriangleVertices(sides: number[]): number[] {
   return angles;
 }
 
+
+export function littleCross(origin: point2D) {
+  const path = [];
+
+  //vertical
+  for (let y = origin.y - 2; y <= origin.y + 2; y++) {
+    path.push({ x: origin.x, y });
+  }
+
+  path.push({ x: origin.x, y: origin.y });
+
+  //horizontal
+  for (let x = origin.x - 2; x <= origin.x + 2; x++) {
+    path.push({ x, y: origin.y });
+  }
+
+  return path;
+
+}
+/** Returns the length of an arc of given radius and given angle of travel
+ * 
+ *  For instance given an angle of 90 degrees would yied 1/4 of the perimeter of a circle of radius R
+  */
+export function getArcDistance(radius: number, angle: number) {
+  return (2 * Math.PI * radius) * angle;
+}
+
+/** returns the angle that would trace an arc of given distance at given radius 
+ *  
+ *  for instance what would be the angle needed to draw a 10mm length arc in a radius of R
+ * 
+*/
+export function getAngleOfArc(radius: number, distance: number) {
+  return distance / (2 * Math.PI * radius);
+}
+
+/* returns the angle between two points in a circle of radius R */
+export function getAngleOfPointsInACircle(radius: number, points: point2D[]) {
+  const a = getTriangleVertices([Math.abs(radius), Math.abs(radius), dist(points[0], points[1])]);
+  console.log({ a, radius, points });
+  return a[1];
+}
+
+export function getArch(centre: point2D, radius: number, angleFrom: number, angleTo: number) {
+  const path: point2D[] = [];
+
+  console.log({ angleFrom, angleTo });
+
+  if (angleFrom < angleTo) {
+    for (let a = angleFrom; a <= angleTo; a += 1) {
+      path.push(polarMove(centre, a, radius));
+    }
+  } else {
+    for (let a = angleFrom; a >= angleTo; a -= 1) {
+      path.push(polarMove(centre, a, radius));
+    }
+  }
+
+  return path;
+}
+
 /**
  * Returns an array of points that represent the arch from point to point at a given radius, separated by 0.1 degree
  * 
@@ -71,38 +132,53 @@ export function getTriangleVertices(sides: number[]): number[] {
  */
 export function getArcPath(from: point2D, to: point2D, radius: number): point2D[] {
   const path: point2D[] = [];
-
-  // radius = Math.abs(radius);
   const distance = dist(from, to);
+
   const angles = getTriangleVertices([Math.abs(radius), Math.abs(radius), distance]);
-  const insideAngle = angles[2]; //ba;
-  const shiftAngle = angles[1]; //ac
+  const insideAngle = getAngleOfPointsInACircle(radius, [from, to]); //angles[0]; //ba;
+  const shiftAngle = angles[2]; //ac
 
   const initAngle = vectorAngle([from, to]);
+  const angle = initAngle + ((radius < 0) ? shiftAngle : -shiftAngle);
 
-  const angle = initAngle + ((radius > 0) ? shiftAngle : -shiftAngle);
-
+  //start point from where to begin the arc
   const arcOrigin = polarMove(from, angle, radius);
-
+  // console.log({ from, angle, radius })
   // console.log({ startAngle: vectorAngle([arcOrigin, from]), endAngle: vectorAngle([arcOrigin, to]) })
 
   // no se que es esto
-  const addodn = vectorAngle([arcOrigin, from]);
+  // const addodn = vectorAngle([arcOrigin, from]);
 
-  // draw  arc in ccw direction
-  path.push(arcOrigin);
+  // // path.push(arcOrigin);
+  // const center = polarMove(from, angle, radius);
 
-  // if (radius < 0) {
+  // if (radius > 0) {
+  //   arc.startAngle = vectorAngle(center, from);
+  //   arc.endAngle = vectorAngle(center, to);
+  //   var addodn = vectorAngle(center, from);
+  //   while (insideAngle >= 0) {
+  //     arc.path.push(polar(arc.center, insideAngle + addodn, radius));
+  //     insideAngle -= 0.1;
+  //   }
   //   for (let angle = insideAngle; angle >= 0; angle -= 1) {
-  //     path.push(polarMove(arcOrigin, angle + addodn, radius));
+  //     path.push(polarMove(from, angle + addodn, radius));
   //   }
   // } else {
+  //   arc.endAngle = vectorAngle(arc.center, from);
+  //   arc.startAngle = vectorAngle(arc.center, to);
+
+  //   var addodn = vectorAngle(arc.center, to);
+  //   i = 0;
+  //   while (i <= insideAngle) {
+  //     arc.path.push(polar(arc.center, i + addodn, radius));
+  //     i += 1;
+  //   }
   //   for (let angle = 0; angle <= insideAngle; angle += 1) {
-  //     path.push(polarMove(arcOrigin, angle + addodn, radius));
+  //     path.push(polarMove(from, angle + addodn, radius));
   //   }
   // }
-  for (let angle = 0; angle <= 360; angle += 1)  path.push(polarMove(arcOrigin, angle + addodn, radius));
 
+  // for (let angle = 0; angle <= 360; angle += 1)  path.push(polarMove(arcOrigin, angle + addodn, radius));
 
   return path;
 }

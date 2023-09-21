@@ -1,4 +1,4 @@
-import { Shape, ShapeParameter } from "src/types";
+import Shape, { ShapeParameter } from "./Shape";
 import GTPulley from "./GT2Pulley";
 import Cycloid from "./HipoCycloid";
 

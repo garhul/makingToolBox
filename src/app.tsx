@@ -5,7 +5,8 @@ import DownloadBadge from "./components/DownloadBadge";
 import Canvas from "./components/preview/Canvas";
 import TopLeftControls from "./components/TopLeftControls";
 import { getShape, getShapeOptions, shapeKeys } from "./shapes";
-import { Shape, ShapeParameter } from "./types";
+import Shape, { ShapeParameter } from "./shapes/Shape";
+
 // import 'bootstrap/dist/css/bootstrap.min.css';
 
 export type shapeControlBoxProps = {

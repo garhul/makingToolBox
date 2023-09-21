@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Badge, Container, Row, Form, OverlayTrigger, Tooltip, Button, ButtonGroup } from "react-bootstrap";
-import { ShapeParameter, ShapeParameterValue } from "src/types";
+import { ShapeParameter, ShapeParameterValue } from "../shapes/Shape";
 import { BsArrowDownSquare, BsArrowUpSquare } from 'react-icons/bs/';
 import { shapeKeys, shapeListOption } from "src/shapes";
 import { BsQuestionCircle } from 'react-icons/bs';

@@ -1,13 +1,10 @@
-import { point2D, Shape, ShapeParameter, ShapeParameterValue } from "src/types";
+import { path2D, } from "src/types";
+import Shape, { ShapeParameter } from "./Shape";
 
-export default class Cycloid implements Shape {
-  private _params: ShapeParameter;
-  private _color: string;
+export default class Cycloid extends Shape {
 
   constructor(params: ShapeParameter, color = '#ff6600') {
-    this._color = color;
-    // set default parameters
-    this._params = {
+    super({       // set default parameters
       ...{
         'definition': {
           name: 'Drawing definition',
@@ -50,18 +47,10 @@ export default class Cycloid implements Shape {
           step: .1
         }
       }, ...params
-    };
+    });
   }
 
-  getParametersList() {
-    return this._params;
-  }
 
-  private getParam(key: string) {
-    if (!(key in this._params)) throw new Error(`Requested param [${key}] not found `);
-
-    return this._params[key];
-  }
 
   private getPoint(step: number) {
     const cycloidRadius = this.getParam('cycloidDiameter').value / 2;
@@ -75,7 +64,7 @@ export default class Cycloid implements Shape {
     }
   }
 
-  getPoints(): point2D[] {
+  getPaths(): path2D[] {
     const pointCount = this.getParameterValue('definition').value;
     const range = { start: 0, end: 2 * Math.PI };
     const step = Math.PI / pointCount;
@@ -85,41 +74,13 @@ export default class Cycloid implements Shape {
       points.push(this.getPoint(t));
     }
 
-    return points;
-  }
-
-  setParameterValue(key: string, value: number): ShapeParameterValue {
-    if (!(key in this._params))
-      throw new Error(`Error setting value for parameter ${key}, parameter not found`);
-
-    const param = this._params[key];
-
-    if ((param.min <= value) && (value <= param.max)) {
-      param.value = value;
-      return param;
-    }
-
-    throw new Error(`Error setting value for parameter ${key}, parameter value (${value}) out of range (${param.min}:${param.max})`);
-  }
-
-  getParameterValue(key: string): ShapeParameterValue {
-    if (!(key in this._params))
-      throw new Error(`Error setting value for parameter ${key}, parameter not found`);
-    return this._params[key];
-  }
-
-  render(ctx: CanvasRenderingContext2D, zoom: number, origin: point2D): void {
-    ctx.strokeStyle = this._color;
-    const points = this.getPoints();
-    ctx.moveTo(points[0].x, points[0].y);
-    ctx.beginPath(); // Start a new path    
-
-    for (const point of points) {
-      ctx.lineTo((point.x * zoom + origin.x), (point.y * zoom + origin.y));
-      ctx.moveTo((point.x * zoom + origin.x), (point.y * zoom + origin.y));
-    }
-
-    ctx.closePath(); // Line to bottom-left corner
-    ctx.stroke();
+    //draw pins too ?
+    return [
+      {
+        strokeColor: this._colors[0],
+        fillColor: this._colors[0],
+        points
+      }
+    ];
   }
 }

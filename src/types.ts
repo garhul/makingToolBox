@@ -10,20 +10,8 @@ export type dimensions2d = {
   height: number;
 }
 
-export type ShapeParameterValue = {
-  name: string;
-  tooltip?: string;
-  value: number;
-  min: number;
-  max: number;
-  step: number;
-};
-
-export type ShapeParameter = Record<string, ShapeParameterValue>
-
-export interface Shape {
-  getPoints: () => point2D[];
-  getParametersList: () => ShapeParameter;
-  getParameterValue: (key: string) => ShapeParameterValue;
-  render: (context: CanvasRenderingContext2D, zoom: number, origin: point2D) => void;
+export type path2D = {
+  fillColor: string;
+  strokeColor: string;
+  points: point2D[];
 }
