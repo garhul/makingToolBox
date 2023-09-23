@@ -70,7 +70,7 @@ export default class GTPulley extends Shape {
         'toothCount': {
           name: 'Tooth count',
           tooltip: 'The amount of teeth in the pulley',
-          value: 1,
+          value: 37,
           min: 10,
           max: 200,
           step: 1
@@ -162,39 +162,31 @@ export default class GTPulley extends Shape {
     const ccwShoulder = this._getShoulderFilletPoint(intFilletPoints.ccw.origin, angle, 'ccw');
     const cwShoulder = this._getShoulderFilletPoint(intFilletPoints.cw.origin, angle, 'cw');
 
-    console.log({
-      origin,
-      angle,
-      intFilletPoints,
-      ccwShoulder,
-      cwShoulder
-    });
-
-
     path.push(...getArch(ccwShoulder.origin, this._pulleyProfile.filletRadius,
       vectorAngle([ccwShoulder.origin, ccwShoulder.edges.top]),
-      vectorAngle([ccwShoulder.origin, ccwShoulder.edges.bottom])));
+      vectorAngle([ccwShoulder.origin, ccwShoulder.edges.bottom]), 'cw'));
 
     path.push(...getArch(intFilletPoints.ccw.origin, this._pulleyProfile.toothInnerRadius,
       vectorAngle([intFilletPoints.ccw.origin, ccwShoulder.edges.bottom]),
-      vectorAngle([intFilletPoints.ccw.origin, intFilletPoints.ccw.intersection]),));
+      vectorAngle([intFilletPoints.ccw.origin, intFilletPoints.ccw.intersection]), 'ccw'));
 
-    // path.push(...getArch(grooveCenter, this._pulleyProfile.toothRadius,
-    //   vectorAngle([grooveCenter, intFilletPoints.ccw.intersection]),
-    //   vectorAngle([grooveCenter, intFilletPoints.cw.intersection])));
+    path.push(...getArch(grooveCenter, this._pulleyProfile.toothRadius,
+      vectorAngle([grooveCenter, intFilletPoints.ccw.intersection]),
+      vectorAngle([grooveCenter, intFilletPoints.cw.intersection]), 'ccw'));
 
     path.push(...getArch(intFilletPoints.cw.origin, this._pulleyProfile.toothInnerRadius,
       vectorAngle([intFilletPoints.cw.origin, intFilletPoints.cw.intersection]),
-      vectorAngle([intFilletPoints.cw.origin, cwShoulder.edges.bottom])));
+      vectorAngle([intFilletPoints.cw.origin, cwShoulder.edges.bottom]), 'ccw'));
 
     path.push(...getArch(cwShoulder.origin, this._pulleyProfile.filletRadius,
       vectorAngle([cwShoulder.origin, cwShoulder.edges.bottom]),
-      vectorAngle([cwShoulder.origin, cwShoulder.edges.top])));
+      vectorAngle([cwShoulder.origin, cwShoulder.edges.top]), 'cw'));
 
     return path;
   }
 
   getPaths(): path2D[] {
+
     const points: point2D[] = [];
     const paths: path2D[] = [];
 
@@ -210,14 +202,9 @@ export default class GTPulley extends Shape {
     this._toothInnerFilletCenterDist = hypo;
     this._toothInnerFilletCenterAngle = getTriangleVertices([hDist, hypo, this._pulleyProfile.pitchFactor])[1];
 
-    // points.push(...this.getToothPath(this._origin, 0));
-    // points.push(...this.getToothPath(this._origin, 90));
-
-    // points.push(...this.getToothPath(this._origin, 0));
-    // points.push(...this.getToothPath(this._origin, 180));
-
     const toothAngle = (360 / this.getParameterValue('toothCount').value);
-    for (let ta = toothAngle; ta <= 360; ta += toothAngle) {
+
+    for (let ta = 0; ta <= 720; ta += toothAngle) {
       points.push(...this.getToothPath(this._origin, ta));
     }
 
@@ -227,7 +214,6 @@ export default class GTPulley extends Shape {
       points
     });
 
-    // console.log({ points });
     return paths; // all the points conforming the pulley
   }
 }

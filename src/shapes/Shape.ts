@@ -62,8 +62,10 @@ export default class Shape implements ShapeInterface {
   }
 
   render(ctx: CanvasRenderingContext2D, zoom: number, origin: point2D): void {
+    console.time('path_gen');
     const paths = this.getPaths();
-
+    console.timeEnd('path_gen');
+    console.time('render');
     paths.forEach((path, i) => {
       const points = path.points;
       ctx.strokeStyle = path.strokeColor || this._colors[i] || this._colors[0];
@@ -81,6 +83,7 @@ export default class Shape implements ShapeInterface {
       ctx.closePath(); // Line to bottom-left corner
       ctx.stroke();
     });
+    console.timeEnd('render');
   }
 
 }

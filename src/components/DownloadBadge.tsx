@@ -23,8 +23,8 @@ function downloadAsDXF(shape: Shape) {
   const paths = shape.getPaths();
   paths.forEach((path, i) => {
     d.addLayer(`layer_${i}`, Drawing.ACI.GREEN, 'CONTINUOUS');
-    d.setActiveLayer(`part`);
-    d.drawPolyline(path.points.map(p => [p.x, p.y]), true);
+    d.setActiveLayer(`layer_${i}`);
+    d.drawPolyline(path.points.map(p => [p.x, p.y]), false);
   });
 
   const element = document.createElement('a');

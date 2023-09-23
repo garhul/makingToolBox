@@ -3,7 +3,8 @@ import { point2D, vector } from "src/types";
 
 /** gets the angle of the vector formed by two points */
 export function vectorAngle(v: vector): number {
-  return Math.atan2(v[1].y - v[0].y, v[1].x - v[0].x) * 180 / Math.PI
+  const a = Math.atan2(v[1].y - v[0].y, v[1].x - v[0].x) * 180 / Math.PI;
+  return (a + 360) % 360
 }
 
 /** gets the distance between two points */
@@ -104,11 +105,32 @@ export function getAngleOfPointsInACircle(radius: number, points: point2D[]) {
   return a[1];
 }
 
-export function getArch(centre: point2D, radius: number, angleFrom: number, angleTo: number) {
+
+
+export function getArch(centre: point2D, radius: number, angleFrom: number, angleTo: number, direction: 'ccw' | 'cw' = 'cw') {
   const path: point2D[] = [];
 
-  console.log({ angleFrom, angleTo });
+  // console.log({ angleFrom, angleTo });
 
+  const delta = (angleTo - angleFrom) % 360;
+  // const delta = ((angleTo > 0) angleTo + 360) - (angleFrom;
+  // console.log({ delta });
+
+  // angleFrom += ((angleFrom > 0) ? 0 : 360);
+  // angleTo += (angleTo > 0) ? 0 : 360;
+  // console.log({ centre, angleFrom, angleTo });
+  // console.log(Math.cos(centre.x), Math.sin(centre.y));
+
+
+  if (direction === 'cw' && angleTo < angleFrom) {
+    angleTo += 360;
+  }
+
+  if (direction === 'ccw' && angleFrom < angleTo) {
+    angleFrom += 360;
+  }
+
+  // We draw from "angleFrom" towards angleTo,
   if (angleFrom < angleTo) {
     for (let a = angleFrom; a <= angleTo; a += 1) {
       path.push(polarMove(centre, a, radius));

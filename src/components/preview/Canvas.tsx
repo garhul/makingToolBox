@@ -59,7 +59,7 @@ export default function Canvas({ shape, grid, axes, zoom, onZoomChange }: canvas
 
 
   const handleScroll = (ev: WheelEvent<HTMLCanvasElement>) => {
-    const maxZoomLevel = 40;
+    const maxZoomLevel = 10;
     const minZoomLevel = 0.25;
     const z = (ev.deltaY < 0) ? zoom + .25 : zoom - .25;
     if (z <= maxZoomLevel && z >= minZoomLevel) {

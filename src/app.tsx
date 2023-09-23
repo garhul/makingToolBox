@@ -21,7 +21,7 @@ function ZoomBadge({ zoom }: { zoom: number }) {
 }
 
 function ShapeControlBox({ onChange }: shapeControlBoxProps) {
-  const [shapeKey, setShapeKey] = useState<shapeKeys>('Gt2Pulley');
+  const [shapeKey, setShapeKey] = useState<shapeKeys>('Cycloid');
   const [shapeParams, setShapeParams] = useState<ShapeParameter>({});
   const [shapeObj, setShapeObj] = useState(getShape(shapeKey));
 
@@ -42,7 +42,8 @@ function ShapeControlBox({ onChange }: shapeControlBoxProps) {
   }
 
   const updateShapeParam = (param: string, value: number) => {
-    console.log({ param, value });
+
+    if (Number.isNaN(value)) return;
     try {
       const p = shapeObj?.getParameterValue(param);
       if (p) {
@@ -65,12 +66,9 @@ function ShapeControlBox({ onChange }: shapeControlBoxProps) {
   )
 }
 
-
-
-
 export default function App() {
   const [shape, setShape] = useState<Shape | null>(null);
-  const [zoom, setZoom] = useState(40);
+  const [zoom, setZoom] = useState(4);
 
   return (
     <Container style={{ overflow: 'hidden' }}>
