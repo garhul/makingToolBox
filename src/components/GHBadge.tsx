@@ -6,7 +6,7 @@ export default function GHBadge() {
     <Badge id="ghBadge">
       <NavLink
         about="Fork me!"
-        href="https://github.com/garhul/toolbox"
+        href="https://github.com/garhul/makingToolBox/"
       >
         <BsGithub />
         <span>Fork me!</span>
