@@ -9,21 +9,19 @@ export type ShapeParameterValue = {
   step: number;
 };
 
-export type ShapeParameter = Record<string, ShapeParameterValue>
+export type ShapeParameters = Record<string, ShapeParameterValue>
 
 export interface ShapeInterface {
   getPaths: () => path2D[];
-  getParametersList: () => ShapeParameter;
+  getParametersList: () => ShapeParameters;
   getParameterValue: (key: string) => ShapeParameterValue;
-  render: (context: CanvasRenderingContext2D, zoom: number, origin: point2D) => void;
+  render: (context: CanvasRenderingContext2D, zoom: number, origin: point2D, colors: string[]) => void;
 }
 
 export default class Shape implements ShapeInterface {
-  protected _params: ShapeParameter;
-  protected _colors: string[];
+  protected _params: ShapeParameters;
 
-  constructor(params: ShapeParameter, colors = ['#55DD99']) {
-    this._colors = colors;
+  constructor(params: ShapeParameters) {
     this._params = params;
   }
 
@@ -61,15 +59,15 @@ export default class Shape implements ShapeInterface {
     return { ...{}, ...this._params[key] };
   }
 
-  render(ctx: CanvasRenderingContext2D, zoom: number, origin: point2D): void {
-    console.time('path_gen');
+  render(ctx: CanvasRenderingContext2D, zoom: number, origin: point2D, colors: string[]): void {
+    // console.time('path_gen');
     const paths = this.getPaths();
-    console.timeEnd('path_gen');
-    console.time('render');
+    // console.timeEnd('path_gen');
+    // console.time('render');
     paths.forEach((path, i) => {
       const points = path.points;
-      ctx.strokeStyle = path.strokeColor || this._colors[i] || this._colors[0];
-      ctx.fillStyle = path.fillColor || this._colors[i] || this._colors[0];
+      ctx.strokeStyle = path.strokeColor || colors[i] || colors[0];
+      ctx.fillStyle = path.fillColor || colors[i] || colors[0];
 
       ctx.moveTo(points[0].x, points[0].y);
 
@@ -82,8 +80,8 @@ export default class Shape implements ShapeInterface {
 
       ctx.closePath(); // Line to bottom-left corner
       ctx.stroke();
+      // console.timeEnd('render');
     });
-    console.timeEnd('render');
   }
 
 }

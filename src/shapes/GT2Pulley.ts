@@ -1,7 +1,7 @@
 
 import { point2D, path2D } from "src/types";
 import { getArch, getTriangleFromSidesAndVertex, getTriangleVertices, polarMove, vectorAngle } from "./utils";
-import Shape, { ShapeParameter } from './Shape';
+import Shape, { ShapeParameters } from './Shape';
 
 const pulleyProfiles = {
   gt2: {
@@ -55,18 +55,18 @@ export default class GTPulley extends Shape {
   private _innerRadius = 0;
 
 
-  constructor(params: ShapeParameter, color = '#55DD99') {
+  constructor(params: ShapeParameters) {
     // set default parameters
     super({
       ...{
-        'definition': {
-          name: 'Drawing definition',
-          tooltip: 'The amount of segments composing the drawing',
-          value: 1800,
-          min: 720,
-          max: 3600,
-          step: 360
-        },
+        // 'definition': {
+        //   name: 'Drawing definition',
+        //   tooltip: 'The amount of segments composing the drawing',
+        //   value: 1800,
+        //   min: 720,
+        //   max: 3600,
+        //   step: 360
+        // },
         'toothCount': {
           name: 'Tooth count',
           tooltip: 'The amount of teeth in the pulley',
@@ -75,14 +75,14 @@ export default class GTPulley extends Shape {
           max: 200,
           step: 1
         },
-        // 'tolerance': {
-        //   name: 'Pin diameter',
-        //   tooltip: 'The diameter of the external pins',
-        //   value: 3,
-        //   min: 1,
-        //   max: 20,
-        //   step: .1
-        // },
+        'boreDiameter': {
+          name: 'Central bore',
+          tooltip: 'The diameter of the internal bore',
+          value: 5,
+          min: 1,
+          max: 50,
+          step: .1
+        },
         // 'pinCount': {
         //   name: 'Pin count',
         //   tooltip: 'Amount of pins (reduction :  # of pins -1)',
@@ -209,10 +209,17 @@ export default class GTPulley extends Shape {
     }
 
     paths.push({
-      strokeColor: '#00ffff',
-      fillColor: '#00ffff',
+      strokeColor: null,
+      fillColor: null,
       points
     });
+
+    //add bore
+    paths.push({
+      strokeColor: null,
+      fillColor: null,
+      points: getArch(this._origin, this.getParameterValue('boreDiameter').value / 2, 0, 360)
+    })
 
     return paths; // all the points conforming the pulley
   }

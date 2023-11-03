@@ -1,4 +1,4 @@
-import Shape, { ShapeParameter } from "./Shape";
+import Shape, { ShapeParameters } from "./Shape";
 import GTPulley from "./GT2Pulley";
 import Cycloid from "./HipoCycloid";
 
@@ -24,11 +24,11 @@ export function getShapeOptions(): shapeListOption[] {
   }];
 }
 
-export function getShape(key: shapeKeys, params: ShapeParameter = {}, color = '#FFBB00'): Shape {
+export function getShape(key: shapeKeys, params: ShapeParameters = {}): Shape {
   switch (key) {
     case 'Cycloid':
-      return new Cycloid(params, color);
+      return new Cycloid(params);
     case 'Gt2Pulley':
-      return new GTPulley(params, '#f2ff00');
+      return new GTPulley(params);
   }
 }

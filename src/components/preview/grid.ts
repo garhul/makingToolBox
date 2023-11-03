@@ -7,14 +7,19 @@ export type gridProperties = {
   size: number;
   dimensions: dimensions2d;
   origin: point2D;
-  color: string;
+  colors: {
+    grid: string;
+    yAxis: string;
+    xAxis: string;
+    scale: string;
+  };
 }
 
-function drawScale({ ctx, dimensions, zoom, zoomRatio }: gridProperties) {
+function drawScale({ ctx, dimensions, zoom, zoomRatio, colors }: gridProperties) {
   ctx.beginPath();
   ctx.font = "16px Geologica, sans-serif";
-  ctx.strokeStyle = "#FFF";
-  ctx.fillStyle = "#DDD";
+  ctx.strokeStyle = colors.scale;
+  ctx.fillStyle = colors.scale;
   const scaleSize = 25 * zoom * zoomRatio;
 
   ctx.fillText(`Zoom: ${zoom}`, 20, dimensions.height - 100);
@@ -34,9 +39,9 @@ function drawScale({ ctx, dimensions, zoom, zoomRatio }: gridProperties) {
   ctx.stroke();
 }
 
-function drawGrid({ ctx, zoom, size, dimensions, origin, color }: gridProperties) {
+function drawGrid({ ctx, zoom, size, dimensions, origin, colors }: gridProperties) {
   ctx.lineWidth = 1;
-  ctx.strokeStyle = color;
+  ctx.strokeStyle = colors.grid;
   ctx.beginPath();
 
   //vertical grid lines
@@ -65,14 +70,18 @@ type drawAxesParams = {
   ctx: CanvasRenderingContext2D;
   dimensions: dimensions2d;
   origin: point2D;
+  colors: {
+    yAxis: string;
+    xAxis: string;
+  }
 }
 
-function drawAxes({ ctx, dimensions, origin }: drawAxesParams) {
+function drawAxes({ ctx, dimensions, origin, colors }: drawAxesParams) {
   // Draw X axis
   ctx.beginPath();
   ctx.font = "1.5em Geologica, sans-serif";
-  ctx.strokeStyle = "#AA0000";
-  ctx.fillStyle = "#AA0000";
+  ctx.strokeStyle = colors.xAxis;
+  ctx.fillStyle = colors.xAxis;
   ctx.fillText("X", 4, origin.y - 8);
 
   ctx.moveTo(0, origin.y);
@@ -81,8 +90,8 @@ function drawAxes({ ctx, dimensions, origin }: drawAxesParams) {
   ctx.stroke();
 
   ctx.beginPath();
-  ctx.strokeStyle = "#00AA00";
-  ctx.fillStyle = "#00AA00";
+  ctx.strokeStyle = colors.yAxis;
+  ctx.fillStyle = colors.yAxis;
   ctx.fillText("Y", origin.x + 4, dimensions.height - 8);
 
   ctx.moveTo(origin.x, dimensions.height);

@@ -1,4 +1,6 @@
-import { useEffect, useRef, useState, WheelEvent } from "react";
+import { useContext, useEffect, useRef, useState, WheelEvent } from "react";
+import { getTheme, ThemeContext } from "src/providers/theme";
+
 import Shape from "../../shapes/Shape";
 import drawBackground from "./grid";
 
@@ -12,17 +14,30 @@ export type canvasViewProperties = {
 
 
 
-
 export default function Canvas({ shape, grid, axes, zoom, onZoomChange }: canvasViewProperties) {
   const [, reRender] = useState({});
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
+  const { theme, } = useContext(ThemeContext);
+
+  const t = getTheme(theme);
+  const colors = {
+    grid: t["--canvas-grid"],
+    yAxis: t["--canvas-y-axis"],
+    xAxis: t["--canvas-x-axis"],
+    scale: t["--canvas-scale"]
+  };
 
   const zoomRatio = 4.2; // zoom Ratio is an attempt to adjust everything to look 1:1 without properly attempting to read DPI
 
-  const canvas = canvasRef.current || null;
-  const context = canvas?.getContext('2d') || null;
-  if (context !== null && canvas !== null) {
+  useEffect(() => {
+    if (!canvasRef.current) return;
 
+    setCanvas(canvasRef.current);
+  }, [canvasRef]);
+
+  const context = canvas?.getContext('2d') || null;
+  if (canvas !== null && context !== null) {
     //size the canvas properly
     canvas.width = window.innerWidth * window.devicePixelRatio;
     canvas.height = window.innerHeight * window.devicePixelRatio;
@@ -41,12 +56,13 @@ export default function Canvas({ shape, grid, axes, zoom, onZoomChange }: canvas
       size: zoom * zoomRatio * 10,
       dimensions: { width: canvas.width, height: canvas.height },
       origin: origin,
-      color: '#000'
+      colors: colors
     }, axes, grid);
 
-    // draw objects
-    shape?.render(context, zoom * zoomRatio, origin);
+    // draw objects    
+    shape?.render(context, zoom * zoomRatio, origin, [t["--canvas-fg-1"]]);
   }
+
 
   useEffect(() => {
     const update = () => reRender({});

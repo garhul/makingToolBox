@@ -11,7 +11,7 @@ export type dimensions2d = {
 }
 
 export type path2D = {
-  fillColor: string;
-  strokeColor: string;
+  fillColor: string | null;
+  strokeColor: string | null;
   points: point2D[];
 }

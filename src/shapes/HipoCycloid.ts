@@ -1,19 +1,20 @@
 import { path2D, } from "src/types";
-import Shape, { ShapeParameter } from "./Shape";
+import Shape, { ShapeParameters } from "./Shape";
+import { getArch } from "./utils";
 
 export default class Cycloid extends Shape {
 
-  constructor(params: ShapeParameter, color = '#ff6600') {
+  constructor(params: ShapeParameters) {
     super({       // set default parameters
       ...{
-        'definition': {
-          name: 'Drawing definition',
-          tooltip: 'The amount of segments composing the drawing',
-          value: 1800,
-          min: 720,
-          max: 3600,
-          step: 360
-        },
+        // 'definition': {
+        //   name: 'Drawing definition',
+        //   tooltip: 'The amount of segments composing the drawing',
+        //   value: 1800,
+        //   min: 720,
+        //   max: 3600,
+        //   step: 360
+        // },
         'cycloidDiameter': {
           name: 'Cycloid disc diameter',
           tooltip: 'The diameter of the cycloid disc',
@@ -45,12 +46,18 @@ export default class Cycloid extends Shape {
           min: 0.5,
           max: 10,
           step: .1
-        }
+        },
+        'bore': {
+          name: 'Central bore',
+          tooltip: 'Central bore diameter',
+          value: 22,
+          min: 1,
+          max: 50,
+          step: .1
+        },
       }, ...params
     });
   }
-
-
 
   private getPoint(step: number) {
     const cycloidRadius = this.getParam('cycloidDiameter').value / 2;
@@ -65,7 +72,7 @@ export default class Cycloid extends Shape {
   }
 
   getPaths(): path2D[] {
-    const pointCount = this.getParameterValue('definition').value;
+    const pointCount = 1800; //this.getParameterValue('definition').value;
     const range = { start: 0, end: 2 * Math.PI };
     const step = Math.PI / pointCount;
     const points = [];
@@ -77,9 +84,14 @@ export default class Cycloid extends Shape {
     //draw pins too ?
     return [
       {
-        strokeColor: this._colors[0],
-        fillColor: this._colors[0],
+        strokeColor: null,
+        fillColor: null,
         points
+      },
+      {
+        strokeColor: null,
+        fillColor: null,
+        points: getArch({ x: 0, y: 0 }, this.getParam('bore').value / 2, 0, 360)
       }
     ];
   }

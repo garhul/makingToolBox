@@ -1,44 +1,20 @@
-:root {
-
-    /* TODO:: stream line these */
-    /* define colors */
-  --bg: #222;
-  --fg-normal: #EEE;
-  --fg-highlight:#99ff00;
-  --fg-alert:#f2ff00;
-
-  --bg-canvas:#21272f;
-  --dark-grey:#4c4c54;
-
-  --bg-controls: rgba(0,0,0,.25);
-
-  --fg-orange:#ff9900;
-  --fg-orange-2:#ff6600;
-  --fg-yellow:#b7e36b;
-  --fg-gray:#BBB;
-
-}
-
-
 html, body { width:100%; height:100%; } 
 
 body {
   background-color: var(--bg);
-  color:var(--fg-normal);
+  color:var(--body-fg);
   font-family: 'Geologica', sans-serif;
   padding:0;
   margin:0;
   overflow:hidden;
+  text-transform: uppercase;
+  font-size:11pt;
 }
 
-.floating {
-  position: absolute;
-  border: 1px solid #f2ff00;
-}
 
 .controlsTitle {
   margin-bottom: 1em;
-  border-bottom: 1px solid var(--dark-grey);
+  border-bottom: 1px solid var(--control-border);
   padding-bottom: 0.5em;
   display: flex;
   grid-column-gap: 1em;  
@@ -48,23 +24,21 @@ body {
   align-items: center;
 }
 
-
 canvas { 
   height: 100vh; 
   width: 100vw; 
   display: block;
   overflow: hidden;
-  background-color: var(--bg-canvas);
+  background-color: var(--canvas-bg);
 }
-
-
 
 #shapeControls {
   min-width: 20vw;
   position:absolute;
   bottom:4em;
   right:1em;
-  background-color: var(--bg-controls);
+  background-color: var(--control-bg);
+  /* backdrop-filter: blur(2px); */
   padding:1em;
   border-radius: 1em;
 }
@@ -76,14 +50,14 @@ canvas {
   padding: 0.2em;
   min-width: 30vw;
   margin:.2em;
-  border-bottom: 1px solid var(--dark-grey);
+  border-bottom: 1px solid var(--control-border);
   display: grid;
   grid-template-columns: 35% 10% 50%;
 }
 
 .controlGroup.row > input[type=number] { 
- background-color: var(--dark-grey);
- color: var(--fg-yellow);
+ background-color: var(--input-bg);
+ color: var(--input-fg);
  border:0;
  padding:.4em;
  border-radius: .5em; 
@@ -106,7 +80,7 @@ input[type=range]:focus {
 }
 
 input[type=range]::-webkit-slider-runnable-track {
-  background: var(--fg-gray);
+  background: var(--input-fg-highlight);
   border: 0;
   width: 100%;
   height: 1px;
@@ -117,16 +91,16 @@ input[type=range]::-webkit-slider-thumb {
   width: 8px;
   height: 16px;
   margin-top: -8px;
-  background: var(--fg-yellow);  
+  background: var(--input-fg-highlight);  
   border: 0;
   cursor: pointer;
   -webkit-appearance: none;
 }
 input[type=range]:focus::-webkit-slider-runnable-track {
-  background: var(--fg-gray);
+  background: var(--input-fg-highlight);
 }
 input[type=range]::-moz-range-track {
-  background: var(--fg-gray);
+  background: var(--input-fg-highlight);
   border: 0;
   width: 100%;
   height: 1px;
@@ -135,7 +109,7 @@ input[type=range]::-moz-range-track {
 input[type=range]::-moz-range-thumb {
   width: 4px;
   height: 10px;
-  background: var(--fg-yellow);  
+  background: var(--input-fg-highlight);  
   border: 0;
   cursor: pointer;
 }
@@ -149,17 +123,17 @@ input[type=range]::-ms-track {
   cursor: pointer;
 }
 input[type=range]::-ms-fill-lower {
-  background: var(--fg-gray);
+  background: var(--input-bg);
   border: 0;
 }
 input[type=range]::-ms-fill-upper {
-  background: var(--fg-gray);
+  background: var(--input-bg);
   border: 0;
 }
 input[type=range]::-ms-thumb {
   width: 4px;
   height: 10px;
-  background: var(--fg-yellow);
+  background: var(--input-fg-highlight);
   border: 0px solid rgba(0, 0, 0, 0);
   border: 0;
   cursor: pointer;
@@ -167,10 +141,10 @@ input[type=range]::-ms-thumb {
   /*Needed to keep the Edge thumb centred*/
 }
 input[type=range]:focus::-ms-fill-lower {
-  background: var(--fg-gray);
+  background: var(--input-bg);
 }
 input[type=range]:focus::-ms-fill-upper {
-  background: var(--fg-gray);
+  background: var(--input-bg);
 }
 /*TODO: Use one of the selectors from https://stackoverflow.com/a/20541859/7077589 and figure out
 how to remove the virtical space around the range input in IE*/
@@ -184,15 +158,15 @@ how to remove the virtical space around the range input in IE*/
 
 .btn {
   padding:.5em;  
-  background-color:var(--bg); 
+  background-color:var(--input-bg); 
   border:0;
-  border-bottom:1px solid var(--dark-grey);
-  color:var(--fg-gray);
+  border-bottom:1px solid var(--input-border);
+  color:var(--input-fg);
   cursor:pointer;
   font-size:.8em;
   text-transform: uppercase;
   margin:.5em;
-  font-family: inherit;
+  font-family: inherit;  
 }
 
 .btn:hover {
@@ -201,8 +175,8 @@ how to remove the virtical space around the range input in IE*/
 
 .btn-toggled , .btn-toggled:hover {
   font-family: inherit;
-  color:var(--fg-highlight);
-  border-bottom:1px solid var(--fg-highlight);
+  color:var(--input-fg-highlight);
+  border-bottom:1px solid var(--input-fg-highlight);
   cursor:pointer;
   filter: brightness(100%);
 }
@@ -211,23 +185,24 @@ how to remove the virtical space around the range input in IE*/
 #downloadBadge {
   position:fixed;
   bottom:0em;
-  right:1em; 
+  right:1em;  
 }
 
 #downloadBadge > .btn {
   font-size: 1em;
   line-height: 1em;
   border-radius: .5em;
-  border:1px solid var(--bg);
-  background-color: var(--bg-controls);
-  color:lightgray; 
+  border:1px solid var(--input-border);
+  background-color: var(--input-bg);
+  color:var(--input-fg);
+  box-shadow: 2px 2px 2px var(--input-shadow); 
 }
 
 #downloadBadge > .btn:active{
   font-size: 1em;
   line-height: 1em;
-  border:1px solid var(--fg-highlight);  
-  color:var(--fg-highlight); 
+  border:1px solid var(--input-fg-highlight);  
+  color:var(--input-fg-highlight); 
   filter: brightness(100%);
 }
 
@@ -239,26 +214,113 @@ how to remove the virtical space around the range input in IE*/
 
 #topControls {
   position:absolute;
-  top:1em;
+  font-size:.9em;
+  top:0em;
   right:1em;
+  align-items: center;
 }
 
 #ghBadge {
-  display: grid;
-  font-size: 2em;
+  display: inline-flex;
   cursor: pointer;
   align-content: space-evenly;
   justify-items: center;
+  padding: 0.4em;
   gap:.2em;
   border-radius:.5em;
+  margin:.5em;
+  
   /* margin:1em; */
-  background-color: var(--bg-controls);
+  background-color: var(--control-bg);
 }
 
-#ghBadge > span {
-  font-size:.4em;
+#ghBadge > * > span {
+  margin-left:.4em;
+  font-size:1.2em;
 }
 
 #ghBadge:hover{
+  filter: brightness(160%); 
+}
+
+.modalBackdrop {
+  /* background: #000; */  
+  animation: fadeIn 1s;   
+  z-index: 10;
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  left: 0;
+  /* opacity: .8; */
+  backdrop-filter: blur(4px);
+}
+
+.modalContainer {  
+  animation: fadeIn 1s;   
+  position: fixed;
+  z-index: 20;
+  left: 20vw;
+  /* text-align: center; */
+  top: 20vh;
+  border-radius: .5em;
+  padding:1em;
+
+  width: 60vw; 
+  /* height: 0vh; Full height     */
+  color:var(--modal-fg);
+  background-color: var(--modal-bg); /* Black w/ opacity */
+}
+
+.aboutBadge {
+  cursor:pointer;
+  display: inline-flex;
+  cursor: pointer;
+  align-content: space-evenly;
+  justify-items: center;
+  padding: 0.4em;
+  gap:.2em;
+  border-radius:.5em;
+  margin:.5em;
+  font-size:1.2em;
+  
+  /* margin:1em; */
+  background-color: var(--control-bg);
+}
+
+.aboutBadge :hover {
   filter: brightness(120%); 
+}
+
+.nav-link {
+  text-decoration: none;  
+  color:var(--input-fg);
+}
+
+.themeChanger {
+  cursor: pointer;
+  display: inline-flex;
+  cursor: pointer;
+  align-content: space-evenly;
+  justify-items: center;
+  padding: 0.4em;
+  gap:1em;
+  border-radius:.5em;
+  margin:.5em;
+  font-size:1.15em;    
+  /* margin:1em; */
+  background-color: var(--control-bg);
+}
+
+.themeChanger > .selected {  
+  color:var(--input-fg-highlight);
+  border-bottom:1px solid var(--input-fg-highlight);
+  cursor:pointer;
+  font-weight:bold;
+  filter: brightness(100%);
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
 }
