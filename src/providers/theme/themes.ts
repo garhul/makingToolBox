@@ -35,9 +35,9 @@ const themes = {
     '--canvas-grid': '#000',
     '--canvas-bg': '#21272f',
 
-    '--canvas-fg-1': '#b7e36b',
-    '--canvas-fg-2': '#00ff66',
-    '--canvas-fg-3': '#990066',
+    '--canvas-fg-1': '#FF00DD',
+    '--canvas-fg-2': '#00CC99',
+    '--canvas-fg-3': '#999966',
 
     '--control-border': '#4c4c54',
     '--control-bg': 'rgba(0,0,0,.25)',

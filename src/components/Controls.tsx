@@ -40,7 +40,7 @@ function ShapeControl({ paramKey, param, onChange }: shapeControlProps) {
         </OverlayTrigger>
       </label>
 
-      <input size={5} type="number" min={param.min} max={param.max} value={param.value} step={param.step} onChange={(ev) => changeHandler(parseFloat(ev.currentTarget.value))} />
+      <input size={6} type="number" min={param.min} max={param.max} value={param.value} step={param.step} onChange={(ev) => changeHandler(parseFloat(ev.currentTarget.value))} />
       <input id={paramKey} min={param.min} max={param.max} value={param.value} step={param.step} type="range" onChange={(ev) => changeHandler(parseFloat(ev.currentTarget.value))} />
     </Row >
   )

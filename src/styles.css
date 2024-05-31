@@ -33,9 +33,9 @@ canvas {
 }
 
 #shapeControls {
-  min-width: 20vw;
+  min-width: 48em;
   position:absolute;
-  bottom:4em;
+  bottom:8em;
   right:1em;
   background-color: var(--control-bg);
   /* backdrop-filter: blur(2px); */
