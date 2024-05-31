@@ -1,6 +1,6 @@
-import { path2D, } from "src/types";
+import { path2D, point2D, } from "src/types";
 import Shape, { ShapeParameters } from "./Shape";
-import { getArch } from "./utils";
+import { getArch, polarMove } from "./utils";
 
 export default class Cycloid extends Shape {
 
@@ -43,7 +43,7 @@ export default class Cycloid extends Shape {
           name: 'Excentricity',
           tooltip: 'Excentrical displacement amount from rotation axis',
           value: 1,
-          min: 0.5,
+          min: 0,
           max: 10,
           step: .1
         },
@@ -54,6 +54,14 @@ export default class Cycloid extends Shape {
           min: 1,
           max: 50,
           step: .1
+        },
+        'backlash': {
+          name: 'Backlash',
+          tooltip: '3d printing tolerance, increases pins origin diamter',
+          value: 0.1,
+          min: 0,
+          max: 1,
+          step: .05
         },
       }, ...params
     });
@@ -72,7 +80,7 @@ export default class Cycloid extends Shape {
   }
 
   getPaths(): path2D[] {
-    const pointCount = 1800; //this.getParameterValue('definition').value;
+    const pointCount = 180; //this.getParameterValue('definition').value;
     const range = { start: 0, end: 2 * Math.PI };
     const step = Math.PI / pointCount;
     const points = [];
@@ -81,8 +89,9 @@ export default class Cycloid extends Shape {
       points.push(this.getPoint(t));
     }
 
-    //draw pins too ?
-    return [
+
+
+    const layers: path2D[] = [
       {
         strokeColor: null,
         fillColor: null,
@@ -92,7 +101,41 @@ export default class Cycloid extends Shape {
         strokeColor: null,
         fillColor: null,
         points: getArch({ x: 0, y: 0 }, this.getParam('bore').value / 2, 0, 360)
-      }
+      },
     ];
+
+
+    //draw pins too ?
+    for (let p = 0; p < this.getParam('pinCount').value; p++) {
+
+      const angle = (360 / this.getParam('pinCount').value) * p;
+      const dist = this.getParam('cycloidDiameter').value / 2;
+      const origin = polarMove({ x: 0, y: 0 }, angle, dist + this.getParam('backlash').value + this.getParam('excentricity').value / 2);
+
+      layers.push({
+        strokeColor: '#ffffff',
+        fillColor: null,
+        points: getArch(origin, this.getParam('pinDiameter').value / 2, 0, 360)
+      });
+    }
+
+    //Draw carrying pins
+
+
+
+
+    //Draw axis centre
+    const spinAxis = polarMove({ x: 0, y: 0 }, 0, this.getParam('excentricity').value);
+    layers.push({
+      strokeColor: '#ffffff',
+      fillColor: null,
+      points: getArch(spinAxis, 1, 0, 360)
+    })
+
+
+
+
+
+    return layers;
   }
 }

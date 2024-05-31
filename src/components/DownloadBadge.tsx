@@ -3,6 +3,7 @@ import { BsDownload } from "react-icons/bs";
 import Shape from "../shapes/Shape"
 import Drawing from 'dxf-writer';
 
+
 type downloadBadgeProps = {
   shape: Shape | null;
 }
@@ -21,10 +22,18 @@ function downloadAsDXF(shape: Shape) {
   const fname = "drawing.dxf";
 
   const paths = shape.getPaths();
+
+  const colors = [
+    Drawing.ACI.MAGENTA,
+    Drawing.ACI.YELLOW,
+    Drawing.ACI.WHITE
+  ];
+
   paths.forEach((path, i) => {
-    d.addLayer(`layer_${i}`, Drawing.ACI.GREEN, 'CONTINUOUS');
+    d.addLayer(`layer_${i}`, colors[i] || Drawing.ACI.WHITE, 'CONTINUOUS');
     d.setActiveLayer(`layer_${i}`);
     d.drawPolyline(path.points.map(p => [p.x, p.y]), false);
+
   });
 
   const element = document.createElement('a');

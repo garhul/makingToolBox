@@ -60,7 +60,7 @@ export default function Canvas({ shape, grid, axes, zoom, onZoomChange }: canvas
     }, axes, grid);
 
     // draw objects    
-    shape?.render(context, zoom * zoomRatio, origin, [t["--canvas-fg-1"]]);
+    shape?.render(context, zoom * zoomRatio, origin, [t["--canvas-fg-1"], t["--canvas-fg-2"], t["--canvas-fg-3"]]);
   }
 
 
