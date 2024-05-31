@@ -7,14 +7,14 @@ export default class Cycloid extends Shape {
   constructor(params: ShapeParameters) {
     super({       // set default parameters
       ...{
-        // 'definition': {
-        //   name: 'Drawing definition',
-        //   tooltip: 'The amount of segments composing the drawing',
-        //   value: 1800,
-        //   min: 720,
-        //   max: 3600,
-        //   step: 360
-        // },
+        'definition': {
+          name: 'Drawing definition',
+          tooltip: 'The amount of segments composing the drawing',
+          value: 720,
+          min: 180,
+          max: 3600,
+          step: 10
+        },
         'cycloidDiameter': {
           name: 'Cycloid disc diameter',
           tooltip: 'The diameter of the cycloid disc',
@@ -80,7 +80,7 @@ export default class Cycloid extends Shape {
   }
 
   getPaths(): path2D[] {
-    const pointCount = 180; //this.getParameterValue('definition').value;
+    const pointCount = this.getParameterValue('definition').value;
     const range = { start: 0, end: 2 * Math.PI };
     const step = Math.PI / pointCount;
     const points = [];
